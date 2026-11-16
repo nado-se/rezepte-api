@@ -54,7 +54,7 @@ app.get("/health", (req, res) => {
 app.get("/recipes", (req, res) => {
     res
       .status(200)
-      .json({message: rezepte});
+      .json({rezepte});
 });
 
 // get single recipe
@@ -80,6 +80,7 @@ app.get("/recipes/:id", (req, res) => {
     res
       .status(404)
       .json({ fehler: `${message}` });
+      return;
   }
 
   // found recipe as JSON
