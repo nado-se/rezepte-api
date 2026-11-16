@@ -52,9 +52,21 @@ app.get("/health", (req, res) => {
 
 //get all recipes
 app.get("/recipes", (req, res) => {
+
+  let foundRecipe;
+
+    const { maxMinuten } = req.query;
+
+    if(maxMinuten) {
+      foundRecipe = rezepte.find( recipe => recipe.minuten <= Number(maxMinuten));
+
+    } else {
+      foundRecipe = rezepte;
+    }
+
     res
       .status(200)
-      .json({rezepte});
+      .json({foundRecipe});
 });
 
 // get single recipe
