@@ -11,7 +11,7 @@ export type Rezept = {
     minuten: number; 
     portionen: number, 
     schwierigkeit: string, 
-    zutaten: ZutatenGruppe,
+    zutaten?: ZutatenGruppe,
 };
 
 let rezepte: Rezept[] = [
@@ -53,4 +53,34 @@ export async function getRecipeById(id: number): Promise<Rezept | null> {
     foundRecipe = rezepte.find( recipe => recipe.id === Number(id)) ?? null;
 
     return foundRecipe;
+}
+
+
+let naechsteId = 3;
+
+export async function createRecipe(daten: Omit<Rezept, "id">): Promise<Rezept> {
+  const neues: Rezept = { id: naechsteId++, ...daten };
+  rezepte.push(neues);
+  return neues;
+}
+
+export async function deleteRecipe(id: number): Promise<boolean> {
+    let foundRecipe: Rezept | null;
+    let oldRecipes: Rezept[];
+
+    oldRecipes = rezepte;
+
+    foundRecipe = rezepte.find( recipe => recipe.id === Number(id)) ?? null;
+
+    if(!foundRecipe) {
+        return false;
+    }
+
+    rezepte = rezepte.filter( recipe => recipe !== foundRecipe);
+
+    if(oldRecipes.length > rezepte.length) {
+        return true;
+    } else {
+        return false;
+    }
 }
