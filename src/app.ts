@@ -15,6 +15,10 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/recipes", recipeRoutes);      // alle Rezept-Routen hängen unter /recipes
+app.use((req, res) => {
+    res.status(404).json({ error: `Route ${req.method} ${req.originalUrl} existiert nicht.`})
+})
+
 app.use(errorHandler);                  // muss NACH den Routen stehen
 
 export default app;                     // die fertige App exportieren (NICHT starten)
