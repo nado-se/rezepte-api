@@ -1,3 +1,6 @@
+import { RecipeNotFoundError } from "./recipe.errors";
+
+
 type ZutatenGruppe = [
     { bestandteile: string[] },
     { gewuerze: string[] },
@@ -48,10 +51,10 @@ export async function getAllRecipes(): Promise<Rezept[]> {
 
 export async function getRecipeById(id: number): Promise<Rezept | null> {
 
-    let foundRecipe: Rezept | null;
-
-    foundRecipe = rezepte.find( recipe => recipe.id === Number(id)) ?? null;
-
+    const foundRecipe = rezepte.find((recipe) => recipe.id === id);
+    if(!foundRecipe) {
+      throw new RecipeNotFoundError(id);
+    }
     return foundRecipe;
 }
 
