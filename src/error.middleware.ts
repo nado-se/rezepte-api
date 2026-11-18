@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { RecipeNotFoundError } from "./recipes/recipe.errors";
+import { RecipeNotFoundError, ValidationError } from "./recipes/recipe.errors";
 
 export function errorHandler(err: any, req: Request, res: Response, next: NextFunction) {
     console.log(err.name);
@@ -8,6 +8,10 @@ export function errorHandler(err: any, req: Request, res: Response, next: NextFu
         err.status = 500;
     }
     if (err instanceof RecipeNotFoundError) {
+        return res.status(err.status).json({ error: err.message })
+    }
+
+    if (err instanceof ValidationError) {
         return res.status(err.status).json({ error: err.message })
     }
 
