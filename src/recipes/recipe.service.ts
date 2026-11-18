@@ -1,4 +1,4 @@
-import { RecipeNotFoundError } from "./recipe.errors";
+import { RecipeNotFoundError, ValidationError } from "./recipe.errors";
 
 
 type ZutatenGruppe = [
@@ -61,8 +61,13 @@ export async function getRecipeById(id: number): Promise<Rezept | null> {
 
 let naechsteId = 3;
 
-export async function createRecipe(daten: Omit<Rezept, "id">): Promise<Rezept> {
+
+export function createRecipe(daten: Omit<Rezept, "id">) {
+
   const neues: Rezept = { id: naechsteId++, ...daten };
+  if(!neues.titel || neues.titel.trim() === "") {
+    throw new ValidationError("Ein Rezept braucht einen Titel.");
+  }
   rezepte.push(neues);
   return neues;
 }

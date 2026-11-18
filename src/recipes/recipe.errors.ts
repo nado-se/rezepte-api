@@ -5,3 +5,11 @@ export class RecipeNotFoundError extends Error {
     this.name = new.target.name;
   }
 }
+
+export class ValidationError  extends Error {
+  status = 400;
+  constructor(message: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}
