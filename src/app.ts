@@ -14,6 +14,10 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
+app.get("/crash", (req, res) => {
+  throw new Error("Absichtlicher Absturz zum Testen");
+});
+
 app.use("/recipes", recipeRoutes);      // alle Rezept-Routen hängen unter /recipes
 app.use((req, res) => {
     res.status(404).json({ error: `Route ${req.method} ${req.originalUrl} existiert nicht.`})
