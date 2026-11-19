@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getRecipesHandler, getRecipeByIdHandler, createRecipeHandler, deleteRecipeHandler } from "./recipe.controller";
+import { getRecipesHandler, getRecipeByIdHandler, createRecipeHandler, deleteRecipeHandler } from "./recipe.controller.ts";
 import { requireApiKey } from "../auth.middleware";
 
 const router = Router();

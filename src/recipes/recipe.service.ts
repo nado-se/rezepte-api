@@ -1,4 +1,4 @@
-import { RecipeNotFoundError, ValidationError } from "./recipe.errors";
+import { RecipeNotFoundError, ValidationError } from "./recipe.errors.ts";
 
 
 type ZutatenGruppe = [

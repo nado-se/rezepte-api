@@ -1,7 +1,7 @@
 import express from "express";
-import recipeRoutes from "./recipes/recipe.router";
-import { logger } from "./logger.middleware";
-import { errorHandler } from "./error.middleware";
+import recipeRoutes from "./recipes/recipe.router.ts";
+import { logger } from "./logger.middleware.ts";
+import { errorHandler } from "./error.middleware.ts";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express"
 

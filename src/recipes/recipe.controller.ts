@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { getAllRecipes, getRecipeById, createRecipe, deleteRecipe } from "./recipe.service";
+import { getAllRecipes, getRecipeById, createRecipe, deleteRecipe } from "./recipe.service.ts";
 
 export async function getRecipesHandler(req: Request, res: Response, next: NextFunction) {
   try {
