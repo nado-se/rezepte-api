@@ -1,9 +1,27 @@
 import express from "express";
-import recipeRoutes from "./recipes/recipe.routes";
+import recipeRoutes from "./recipes/recipe.router";
 import { logger } from "./logger.middleware";
 import { errorHandler } from "./error.middleware";
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express"
+
+const swaggerSpec = swaggerJSDoc({
+    definition: {
+        openapi: "3.0.0",
+        info: { 
+          title: "Rezepte-Api", 
+          version: "1.0.0",
+          description: "Automatisch erstellte Dokumentation"
+        },
+    },
+    apis: ["./src/**/*.router.ts"]
+})
 
 const app = express();
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+
 app.use(express.json());              // JSON im Request-Body lesen
 app.use(logger);                      // vor den Routen -> sieht jede Anfrage
 

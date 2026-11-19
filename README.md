@@ -1,0 +1,1 @@
+Call /docs to get the Swagger UI Documentation.
