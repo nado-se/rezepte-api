@@ -1,3 +1,5 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/api" }]
+  "functions": {
+    "src/app.ts": { "includeFiles": "src/**/*.router.ts" }
+  }
 }
