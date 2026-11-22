@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 
-const API_KEY = "geheim123";
+const API_KEY = process.env.apiKey;
 
 export function requireApiKey(req: Request, res: Response, next: NextFunction) {
     let apiKey: string | undefined;
