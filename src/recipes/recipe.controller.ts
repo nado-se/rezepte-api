@@ -1,5 +1,11 @@
 import { Request, Response, NextFunction } from "express";
-import { getAllRecipes, getRecipeById, createRecipe, deleteRecipe } from "./recipe.service.ts";
+import {
+  getAllRecipes,
+  getRecipeById,
+  createRecipe,
+  deleteRecipe,
+  addIngredientToRecipe,
+} from "./recipe.service.ts";
 
 export async function getRecipesHandler(req: Request, res: Response, next: NextFunction) {
   try {
@@ -34,6 +40,23 @@ export async function createRecipeHandler(req: Request, res: Response, next: Nex
   try {
     const neues = await createRecipe(req.body);
     res.status(201).json(neues);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function addIngredientToRecipeHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    await addIngredientToRecipe(
+      Number(req.params.id),
+      req.body.ingredientName,
+      req.body.amount
+    );
+    return res.status(204).send();
   } catch (err) {
     next(err);
   }

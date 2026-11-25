@@ -16,6 +16,7 @@ import {
   getRecipeById as getByIdFromDb,
   createRecipe as createInDb,
   deleteRecipe as deleteInDb,
+  addIngredientToRecipe as addIngredientInDb,
 } from "./recipe.repo.ts";
 
 
@@ -46,6 +47,25 @@ export async function createRecipe(data: Omit<Rezept, "id">): Promise<Rezept> {
   );
 }
 
+export async function addIngredientToRecipe(
+  recipeId: number,
+  ingredientName: string,
+  amount: string
+): Promise<void> {
+  if (!Number.isInteger(recipeId) || recipeId <= 0) {
+    throw new ValidationError("Rezept nicht gefunden");
+  }
+
+  if (typeof ingredientName !== "string" || ingredientName.trim() === "") {
+    throw new ValidationError("Die Bezeichnung der Zutat fehlt.");
+  }
+
+  if (typeof amount !== "string" || amount.trim() === "") {
+    throw new ValidationError("Die Zutatenmenge darf nicht leer sein.");
+  }
+
+  await addIngredientInDb(recipeId, ingredientName, amount);
+}
 
 export async function deleteRecipe(id: number): Promise<boolean> {
   const recipe = await getByIdFromDb(id);

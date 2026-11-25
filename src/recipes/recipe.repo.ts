@@ -49,3 +49,22 @@ export async function getRecipeById(id: number): Promise<Rezept | null> {
 export async function deleteRecipe(id: number): Promise<void> {
   await pool.query("DELETE FROM recipe WHERE id = $1", [id]);
 }
+
+// add an ingredient to a recipe
+export async function addIngredientToRecipe(
+  recipeId: number,
+  ingredientName: string,
+  amount: string
+): Promise<void> {
+  const timestamp = new Date().toISOString();
+  const ingredientRes = await pool.query(
+    "INSERT INTO ingredient (name, created_at) VALUES ($1, $2) ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name RETURNING id",
+    [ingredientName, timestamp]
+  );
+  const ingredientId = ingredientRes.rows[0].id;
+
+  await pool.query(
+    "INSERT INTO recipe_ingredient (recipe_id, ingredient_id, amount, created_at) VALUES ($1, $2, $3, $4)",
+    [recipeId, ingredientId, amount, timestamp]
+  );
+}

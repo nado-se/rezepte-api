@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { getRecipesHandler, getRecipeByIdHandler, createRecipeHandler, deleteRecipeHandler } from "./recipe.controller.ts";
+import {
+  getRecipesHandler,
+  getRecipeByIdHandler,
+  createRecipeHandler,
+  deleteRecipeHandler,
+  addIngredientToRecipeHandler,
+} from "./recipe.controller.ts";
 import { requireApiKey } from "../auth.middleware.ts";
 
 const router = Router();
@@ -154,6 +160,39 @@ router.get("/:id", getRecipeByIdHandler);
  *               $ref: '#/components/schemas/Error'
  */
 router.post("/", createRecipeHandler);
+
+/**
+ * @openapi
+ * /recipes/{id}/ingredients:
+ *   post:
+ *     tags:
+ *       - Rezepte
+ *     summary: Zutat zu einem Rezept hinzufügen
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [ingredientName, amount]
+ *             properties:
+ *               ingredientName:
+ *                 type: string
+ *               amount:
+ *                 type: string
+ *     responses:
+ *       204:
+ *         description: Zutat wurde dem Rezept hinzugefügt
+ *       400:
+ *         description: Ungültige Rezept-/Zutaten-ID oder Menge
+ */
+router.post("/:id/ingredients", addIngredientToRecipeHandler);
 
 /**
  * @openapi
