@@ -5,6 +5,13 @@ import { errorHandler } from "./error.middleware.ts";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express"
 
+import { getPostgresPool } from "./pool.postgres";
+
+//test
+const pool = getPostgresPool();
+const res = await pool.query("SELECT NOW()");
+console.log("DB sagt:", res.rows[0]);
+
 const swaggerSpec = swaggerJSDoc({
     definition: {
         openapi: "3.0.0",
