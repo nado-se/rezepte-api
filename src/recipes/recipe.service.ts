@@ -1,57 +1,31 @@
 import { RecipeNotFoundError, ValidationError } from "./recipe.errors.ts";
 
 
-type ZutatenGruppe = [
-    { bestandteile: string[] },
-    { gewuerze: string[] },
-    { optional: string[] },
-]
-
-
-export type Rezept = { 
-    id: number; 
-    titel: string; 
-    minuten: number; 
-    portionen: number, 
-    schwierigkeit: string, 
-    zutaten?: ZutatenGruppe,
+export type Zutat = { name: string; menge: string };
+export type Rezept = {
+  id: number;
+  titel: string;
+  minuten: number;
+  portionen: number;
+  schwierigkeit: string, 
+  zutaten?: Zutat[];        // nur bei getRecipeById gefüllt (Detail-Ansicht)
 };
 
-let rezepte: Rezept[] = [
-  { 
-    id: 1, 
-    titel: "Spaghetti Carbonara", 
-    minuten: 20, 
-    portionen: 2,
-    schwierigkeit: "Einfach", 
-    zutaten: [
-      { bestandteile: ["Spaghetti", "Schinken", "Eier"]},
-      { gewuerze: ["Salz", "Pfeffer"] },
-      { optional: ["Parmesan"] },
-    ],
-  },
-  {
-    id: 2,
-    titel: "Linsen-Curry",
-    minuten: 30,
-    portionen: 4,
-    schwierigkeit: "Fortgeschritten",
-    zutaten: [
-      { bestandteile: ["Reis", "Kartoffeln", "Karotten", "Linsen"]},
-      { gewuerze: ["Knoblauch", "Curry"] },
-      { optional: ["Erbsen", "Paprika"] },
-    ],
+import {
+  getAllRecipes as getAllFromDb,
+  getRecipeById as getByIdFromDb,
+  createRecipe as createInDb,
+  deleteRecipe as deleteInDb,
+} from "./recipe.repo.ts";
 
-  }
-];
 
 export async function getAllRecipes(): Promise<Rezept[]> {
-  return rezepte;
+  return getAllFromDb();
 }
 
 export async function getRecipeById(id: number): Promise<Rezept | null> {
 
-    const foundRecipe = rezepte.find((recipe) => recipe.id === id);
+    const foundRecipe = getByIdFromDb(Number(id));
     if(!foundRecipe) {
       throw new RecipeNotFoundError(id);
     }
@@ -59,36 +33,27 @@ export async function getRecipeById(id: number): Promise<Rezept | null> {
 }
 
 
-let naechsteId = 3;
-
-
-export function createRecipe(daten: Omit<Rezept, "id">) {
-
-  const neues: Rezept = { id: naechsteId++, ...daten };
-  if(!neues.titel || neues.titel.trim() === "") {
+export async function createRecipe(data: Omit<Rezept, "id">): Promise<Rezept> {
+  if (!data.titel || data.titel.trim() === "") {
     throw new ValidationError("Ein Rezept braucht einen Titel.");
   }
-  rezepte.push(neues);
-  return neues;
+
+  return await createInDb(
+    data.titel,
+    data.minuten,
+    data.portionen,
+    data.schwierigkeit
+  );
 }
 
+
 export async function deleteRecipe(id: number): Promise<boolean> {
-    let foundRecipe: Rezept | null;
-    let oldRecipes: Rezept[];
+  const recipe = await getByIdFromDb(id);
+  if (!recipe) {
+    return false;
+  }
 
-    oldRecipes = rezepte;
+  await deleteInDb(id);
 
-    foundRecipe = rezepte.find( recipe => recipe.id === Number(id)) ?? null;
-
-    if(!foundRecipe) {
-        return false;
-    }
-
-    rezepte = rezepte.filter( recipe => recipe !== foundRecipe);
-
-    if(oldRecipes.length > rezepte.length) {
-        return true;
-    } else {
-        return false;
-    }
+  return true;
 }
