@@ -41,10 +41,17 @@ ALTER TABLE
     "recipe_ingredient" ADD CONSTRAINT "recipe_ingredient_ingredient_id_foreign" FOREIGN KEY("ingredient_id") REFERENCES "ingredient"("id");
 
   
-  INSERT INTO recipe (title, minutes, portions, difficulty, created_at) VALUES
-  ('Spaghetti Carbonara', 20, 2, null, now()),
-  ('Linsen-Curry',        35, 4, null, now()),
-  ('Maultaschen', 15, 3, 'Einfach', now());
+  INSERT INTO recipe (title, minutes, portions, difficulty, created_at)
+  SELECT seed.title, seed.minutes, seed.portions, seed.difficulty, now()
+  FROM (
+    VALUES
+      ('Spaghetti Carbonara', 20, 2, null),
+      ('Linsen-Curry', 35, 4, null),
+      ('Maultaschen', 15, 3, 'Einfach')
+  ) AS seed(title, minutes, portions, difficulty)
+  WHERE NOT EXISTS (
+    SELECT 1 FROM recipe existing WHERE existing.title = seed.title
+  );
 
   INSERT INTO ingredient (name, created_at) VALUES
   ('Spaghetti', now()), 
@@ -56,21 +63,29 @@ ALTER TABLE
   ('Mehl', now()),
   ('Petersilie', now()),
   ('Spinat', now()),
-  ('Brötchen', now());
+  ('Brötchen', now())
+  ON CONFLICT (name) DO NOTHING;
   
 
-  INSERT INTO recipe_ingredient (recipe_id, ingredient_id, amount, created_at) VALUES
-  (1, 1, '200 g', now()),   -- Carbonara: Spaghetti
-  (1, 2, '2 Stück', now()), -- Carbonara: Ei
-  (1, 3, '100 g', now()),   -- Carbonara: Speck
-  (2, 4, '250 g', now()),   -- Curry: Linsen
-  (2, 5, '400 ml', now()),  -- Curry: Kokosmilch
-  (2, 6, '1 Stück', now()), -- Curry: Zwiebel
-  (3, 7, '200 g', now()),   -- Maultaschen: Mehl
-  (3, 2, '3 Stück', now()), -- Maultaschen: Ei
-  (3, 8, '50 g', now()),   -- Maultaschen: Petersilie
-  (3, 9, '500 g', now()),   -- Maultaschen: Spinat
-  (3, 10, '1 Stück', now());  -- Maultaschen: Brötchen
+  INSERT INTO recipe_ingredient (recipe_id, ingredient_id, amount, created_at)
+  SELECT r.id, i.id, amounts.amount, now()
+  FROM (
+    VALUES
+      ('Spaghetti Carbonara', 'Spaghetti', '200 g'),
+      ('Spaghetti Carbonara', 'Ei', '2 Stück'),
+      ('Spaghetti Carbonara', 'Speck', '100 g'),
+      ('Linsen-Curry', 'Linsen', '250 g'),
+      ('Linsen-Curry', 'Kokosmilch', '400 ml'),
+      ('Linsen-Curry', 'Zwiebel', '1 Stück'),
+      ('Maultaschen', 'Mehl', '200 g'),
+      ('Maultaschen', 'Ei', '3 Stück'),
+      ('Maultaschen', 'Petersilie', '50 g'),
+      ('Maultaschen', 'Spinat', '500 g'),
+      ('Maultaschen', 'Brötchen', '1 Stück')
+  ) AS amounts(recipe_title, ingredient_name, amount)
+  JOIN recipe r ON r.title = amounts.recipe_title
+  JOIN ingredient i ON i.name = amounts.ingredient_name
+  ON CONFLICT (recipe_id, ingredient_id) DO NOTHING;
   
   -- Alle Rezepte, alle Spalten.
   SELECT * FROM recipe;
@@ -95,7 +110,7 @@ ALTER TABLE
     FROM ingredient
     JOIN recipe_ingredient AS ri ON ri.ingredient_id = ingredient.id
     JOIN recipe ON ri.recipe_id = recipe.id
-    WHERE recipe.id = 1;
+    WHERE recipe.title = 'Spaghetti Carbonara';
 
     -- Update Rezept
     SELECT * FROM recipe ORDER BY title;
@@ -103,11 +118,11 @@ ALTER TABLE
     UPDATE recipe SET portions = 6 WHERE title = 'Linsen-Curry';
 
     --DELETE rezept
-    --CASCADE testen: Lösch ein Rezept (DELETE FROM rezepte WHERE id = 1;) und prüfe: Die Verknüpfungen in rezept_zutaten verschwinden dank ON DELETE CASCADE automatisch mit — die zutaten selbst aber bleiben (sie gehören ja niemandem allein).
+    --CASCADE testen: Lösch ein Rezept (DELETE FROM recipe WHERE title = 'Spaghetti Carbonara';) und prüfe: Die Verknüpfungen in recipe_ingredient verschwinden dank ON DELETE CASCADE automatisch mit — die Zutaten selbst bleiben erhalten.
 
     SELECT * FROM recipe ORDER BY title;
     SELECT * FROM recipe_ingredient;
-    DELETE FROM recipe WHERE id = 1;
+    DELETE FROM recipe WHERE title = 'Spaghetti Carbonara';
 
     SELECT * FROM recipe ORDER BY title;
     SELECT * FROM recipe_ingredient;
@@ -132,7 +147,16 @@ GROUP BY recipe.title;
 
 --Vierte Tabelle (1:n): eine kategorien-Tabelle, auf die rezepte per Foreign Key verweist (ein Rezept hat eine Kategorie, eine Kategorie viele Rezepte).
 
-INSERT INTO recipe_category (name, recipe_id) VALUES('Vegetarisch', 2);
+INSERT INTO recipe_category (name, recipe_id)
+  SELECT 'Vegetarisch', id
+  FROM recipe
+  WHERE title = 'Linsen-Curry'
+    AND NOT EXISTS (
+      SELECT 1
+      FROM recipe_category existing
+      WHERE existing.name = 'Vegetarisch'
+        AND existing.recipe_id = recipe.id
+    );
 
 SELECT recipe.title, recipe_category.name FROM recipe
   LEFT JOIN recipe_category ON recipe.id = recipe_category.recipe_id;

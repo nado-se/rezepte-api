@@ -25,8 +25,7 @@ export async function getAllRecipes(): Promise<Rezept[]> {
 }
 
 export async function getRecipeById(id: number): Promise<Rezept | null> {
-
-    const foundRecipe = getByIdFromDb(Number(id));
+    const foundRecipe = await getByIdFromDb(Number(id));
     if(!foundRecipe) {
       throw new RecipeNotFoundError(id);
     }

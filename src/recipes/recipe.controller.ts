@@ -26,7 +26,7 @@ export async function getRecipeByIdHandler(req: Request, res: Response, next: Ne
         recipe = await getRecipeById(id);
 
         if(!recipe) {
-            return res.status(404).json({ fehler: "Rezept nicht gefunden" });
+            return res.status(404).json({ error: "Rezept nicht gefunden" });
         }
 
         return res.status(200).json({ success: "ok", data: recipe });
@@ -70,7 +70,7 @@ export async function deleteRecipeHandler(req: Request, res: Response, next: Nex
         if(deleted) {
             res.status(204).send()
         } else {
-            res.status(404).json({ fehler: "Rezept nicht gefunden" });
+            res.status(404).json({ error: "Rezept nicht gefunden" });
         }
     } catch(err) {
         next(err);
