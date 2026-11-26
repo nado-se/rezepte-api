@@ -29,7 +29,7 @@ export async function createRecipe(
 // get recipe with ingredients by ID
 export async function getRecipeById(id: number): Promise<Rezept | null> {
   const rezeptRes = await pool.query(
-    "SELECT id, title, minutes, portions, difficulty FROM recipe WHERE id = $1",
+    "SELECT r.id, r.title, r.minutes, r.portions, r.difficulty, c.name AS kategorie FROM recipe r LEFT JOIN recipe_category c ON c.id = r.category_id WHERE r.id = $1",
     [id]
   );
 
@@ -42,7 +42,13 @@ export async function getRecipeById(id: number): Promise<Rezept | null> {
     [id]
   );
 
-  return { ...rezeptRes.rows[0], zutaten: zutatenRes.rows };
+  const { kategorie, ...rezept } = rezeptRes.rows[0];
+
+  return {
+    ...rezept,
+    zutaten: zutatenRes.rows,
+    ...(kategorie && { kategorie }),
+  };
  }
 
 // delete one recipe by recipe ID

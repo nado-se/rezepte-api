@@ -9,6 +9,7 @@ export type Rezept = {
   portionen: number;
   schwierigkeit: string, 
   zutaten?: Zutat[];        // nur bei getRecipeById gefüllt (Detail-Ansicht)
+  kategorie?: string;       // nur bei getRecipeById gefüllt, sofern vorhanden
 };
 
 import {

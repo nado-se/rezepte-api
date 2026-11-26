@@ -46,6 +46,9 @@ const router = Router();
  *               type: array
  *               items:
  *                 type: string
+ *         kategorie:
+ *           type: string
+ *           example: Vegetarisch
  *     RecipeCreate:
  *       type: object
  *       required: [titel, minuten, portionen, schwierigkeit]

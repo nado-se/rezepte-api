@@ -1,21 +1,25 @@
+CREATE TABLE IF NOT EXISTS "recipe_category"(
+    "id" SERIAL NOT NULL,
+    "name" VARCHAR(255) NOT NULL
+);
+ALTER TABLE
+    "recipe_category" ADD PRIMARY KEY("id");
 CREATE TABLE IF NOT EXISTS "recipe"(
     "id" SERIAL NOT NULL,
     "title" VARCHAR(255) NOT NULL,
     "minutes" INTEGER NULL,
     "portions" INTEGER NULL,
     "difficulty" VARCHAR(255) NULL,
+    "category_id" INTEGER NULL,
     "created_at" TIMESTAMP(0) WITH
         TIME zone NOT NULL
 );
 ALTER TABLE
     "recipe" ADD PRIMARY KEY("id");
-CREATE TABLE IF NOT EXISTS "recipe_category"(
-    "id" SERIAL NOT NULL,
-    "name" VARCHAR(255) NOT NULL,
-    "recipe_id" BIGINT NOT NULL
-);
-  ALTER TABLE
-      "recipe_category" ADD PRIMARY KEY("id");
+CREATE UNIQUE INDEX IF NOT EXISTS "recipe_category_name_unique"
+    ON "recipe_category"("name");
+ALTER TABLE
+    "recipe" ADD CONSTRAINT "recipe_category_id_foreign" FOREIGN KEY("category_id") REFERENCES "recipe_category"("id");
 CREATE TABLE IF NOT EXISTS "ingredient"(
     "id" SERIAL NOT NULL,
     "name" VARCHAR(255) NOT NULL UNIQUE,
@@ -145,18 +149,17 @@ GROUP BY recipe.title;
 
 
 
---Vierte Tabelle (1:n): eine kategorien-Tabelle, auf die rezepte per Foreign Key verweist (ein Rezept hat eine Kategorie, eine Kategorie viele Rezepte).
+-- Eine Kategorie kann vielen Rezepten zugeordnet sein; jedes Rezept verweist auf eine Kategorie.
+INSERT INTO recipe_category (name)
+VALUES ('Vegetarisch')
+ON CONFLICT (name) DO NOTHING;
 
-INSERT INTO recipe_category (name, recipe_id)
-  SELECT 'Vegetarisch', id
-  FROM recipe
-  WHERE title = 'Linsen-Curry'
-    AND NOT EXISTS (
-      SELECT 1
-      FROM recipe_category existing
-      WHERE existing.name = 'Vegetarisch'
-        AND existing.recipe_id = recipe.id
-    );
+UPDATE recipe
+SET category_id = recipe_category.id
+FROM recipe_category
+WHERE recipe_category.name = 'Vegetarisch'
+  AND recipe.title = 'Linsen-Curry'
+  AND recipe.category_id IS DISTINCT FROM recipe_category.id;
 
 SELECT recipe.title, recipe_category.name FROM recipe
-  LEFT JOIN recipe_category ON recipe.id = recipe_category.recipe_id;
+  LEFT JOIN recipe_category ON recipe.category_id = recipe_category.id;
