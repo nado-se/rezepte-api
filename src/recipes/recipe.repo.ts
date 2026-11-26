@@ -1,4 +1,4 @@
-import { getPostgresPool } from "../pool.postgres";
+import { getPostgresPool } from "../pool.postgres.ts";
 import { Rezept } from "./recipe.service";
 
 const pool = getPostgresPool();

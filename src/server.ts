@@ -1,6 +1,6 @@
 import "dotenv/config";
 import app from "./app.ts";
-import { getPostgresPool } from "./pool.postgres";
+import { getPostgresPool } from "./pool.postgres.ts";
 
 const PORT = 3000;
 const server = app.listen(PORT, () => {

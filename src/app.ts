@@ -5,7 +5,7 @@ import { errorHandler } from "./error.middleware.ts";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express"
 
-import { getPostgresPool } from "./pool.postgres";
+import { getPostgresPool } from "./pool.postgres.ts";
 
 //test
 const pool = getPostgresPool();
